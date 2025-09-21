@@ -1,0 +1,51 @@
+{
+  "taches":[
+    {
+      "id": 1,
+      "titre": "Développer l'API REST",
+      "description": "Créer les endpoints pour la gestion des tâches avec authentification et permissions",
+      "statut": "en_cours"
+    },
+    {
+      "id": 2,
+      "titre": "Rédiger la documentation",
+      "description": "Documenter tous les endpoints de l'API avec des exemples d'utilisation",
+      "statut": "termine"
+    },
+    {
+      "id": 3,
+      "titre": "Tests unitaires",
+      "description": "Écrire les tests pour tous les contrôleurs et midlewares",
+      "statut": "en_attente"
+    
+    },
+    {
+      "id": 4,
+      "titre": "Déploiement production",
+      "description": "Configurer l'environnement de production avec Docker et CI/CD",
+      "statut": "en_cours"
+    
+    }
+  ],
+
+  "Users":[
+    {
+      "nom" : "Fall",
+      "prenom"  : "Khadija",
+      "login": "user1",
+      "password":"pass12"
+    },
+    {
+      "nom" : "Diop",
+      "prenom"  : "Modou",
+      "login": "user2",
+      "password": "pass11"
+    },
+    {
+      "nom" : "Ndiaye",
+      "prenom"  : "Oumy",
+      "login": "user3",
+      "password": "pass3"
+    }
+  ]
+}
