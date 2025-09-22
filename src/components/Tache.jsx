@@ -1,27 +1,30 @@
 
-import { Plus, Search, Filter, Calendar, Clock, User, MoreVertical, Edit3, Trash2, Eye, CheckSquare, User2, LogOut } from 'lucide-react';
+import { Plus, Search, Filter, Calendar, Clock, User, MoreVertical, Edit3, Trash2, Eye, CheckSquare, User2, LogOut, SquareKanban } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import FormTache from './Formulaire';
 import Modal from './Modal';
 import { TodoApi } from '../api/api';
 
-export default function Taches() {
+export default function Taches({setIsLogged}) {
  
   const [taches, setTaches] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // useEffect(() => {""
-  //   fetch('http://localhost:3001/taches')
-  //     .then((res) => res.json())
-  //     .then((data) => setTaches(data))
-  //     .catch((err) => console.error(err));
-  // }, []);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  
 
+
+ const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLogged(false); 
+  };
 
    useEffect(() => {
     const fetchTaches = async () => {
       try {
-        const data = await TodoApi.getTaches(); // 🔹 appelle l’API
+        const data = await TodoApi.getTaches(); 
         setTaches(data.taches);
       } catch (err) {
         console.error(err);
@@ -31,14 +34,37 @@ export default function Taches() {
     fetchTaches();
   }, []);
 
-  const onDelete = async (id)=>{
+  
 
-     await TodoApi.deleteTache(id);
-   
-      setTaches(prev=> prev.filter(t=> t.id !== id))
-    
-    
-  }
+  // const onDelete = async (id)=>{
+  //   await TodoApi.deleteTache(id);
+  //   setTaches(prev=> prev.filter(t=> t.id !== id))  
+  // }
+
+  // const onEdit = async (id)=>{
+  //   await TodoApi.updateTache(id)
+  //     setTaches(prev=> prev.filter(t=> t.id !== id))
+
+  // }
+
+    const onEdit = (t) => {
+      setSelectedTask(t);
+      setIsModalOpen(true);
+    };
+
+    const confirmDelete = (task) => {
+      setTaskToDelete(task);
+      setIsConfirmOpen(true);
+    };
+
+    const handleDelete = async () => {
+      if (taskToDelete) {
+        await TodoApi.deleteTache(taskToDelete.id);
+        setTaches((prev) => prev.filter((t) => t.id !== taskToDelete.id));
+        setIsConfirmOpen(false);
+        setTaskToDelete(null);
+      }
+    };
 
   const getStatusColor = (statut) => {
     switch(statut) {
@@ -69,7 +95,7 @@ export default function Taches() {
             {/* Logo et nom de l'app */}
             <div className="flex items-center gap-3">
               <div className="bg-blue-950 p-2 rounded-xl">
-                <CheckSquare size={24} className="text-white" />
+                <SquareKanban size={24} className="text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">TACHES</h1>
@@ -85,9 +111,9 @@ export default function Taches() {
                 </div>
                 <span>Utilisateur</span>
               </div>
-              <button className="flex items-center gap-2 text-red-600 hover:text-red-200 hover:bg-red-500 px-3 py-2 rounded-lg transition-colors">
+              <button onClick={handleLogout} className="flex items-center gap-2 text-red-600 hover:text-red-200 hover:bg-red-500 px-3 py-2 rounded-lg transition-colors">
                 <LogOut size={18} />
-                <span className="text-sm font-medium">Déconnexion</span>
+                <span  className="text-sm font-medium">Déconnexion</span>
               </button>
             </div>
           </div>
@@ -105,10 +131,7 @@ export default function Taches() {
               <p className="text-gray-600">Organisez et suivez vos projets efficacement</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
-                <Filter size={18} />
-                Filtres
-              </button>
+            
                 <button
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-950 font-extrabold text-white px-6 py-2 rounded-xl hover:from-blue-900 hover:to-blue-900 transition-all transform hover:scale-105 flex items-center gap-2 shadow-lg"
@@ -118,10 +141,34 @@ export default function Taches() {
             </button>
           </div>
          </div>
-
+          {console.log("selectedTask reçu par FormTache :", selectedTask)}
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <FormTache taches={taches} setIsModalOpen ={setIsModalOpen}/>
+            <FormTache taches={taches} setIsModalOpen ={setIsModalOpen} selectedTask={selectedTask}  setSelectedTask={setSelectedTask} 
+  />
           </Modal>
+
+          {/* Modal Confirmation */}
+          <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} title="Confirmation">
+            <p className="text-gray-700 mb-6">
+              Voulez-vous vraiment supprimer la tâche{' '}
+              <span className="font-semibold">{taskToDelete?.titre}</span> ?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsConfirmOpen(false)}
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+              >
+                Supprimer
+              </button>
+            </div>
+          </Modal>
+
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-1">
             <div className="flex items-center gap-3 px-4 py-3">
@@ -218,25 +265,19 @@ export default function Taches() {
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <div className="flex items-center gap-1">
                                 <img  className='flex justify-start w-[10rem]' src="src/assets/to.png" alt="" />
-                                {/* <img  className=' flex justify-end w-[10rem]' src="src/assets/todo.png" alt="" /> */}
-                         
-                            {/* <span>{task.dateCreation}</span> */}
+                              
                           </div>
-                          {/* <div className="flex items-center gap-1">
-                            <Clock size={14} />
-                            <span>Priorité {task.priorite}</span>
-                          </div> */}
+                          
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="p-2 text-blue-600 hover:text-indigo-400 hover:bg-indigo-50 rounded-lg transition-colors">
-                        <Eye size={16} />
-                      </button>
-                      <button className="p-2 text-orange-600 hover:text-orange-400 hover:bg-blue-50 rounded-lg transition-colors">
+                     
+                      <button onClick={()=>onEdit(task)} className="p-2 text-orange-600 hover:text-orange-400 hover:bg-blue-50 rounded-lg transition-colors">
                         <Edit3 size={16} />
                       </button>
-                      <button onClick={()=>onDelete(task.id)} className="p-2 text-red-600 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                      <button   onClick={() => confirmDelete(task)}
+                      className="p-2 text-red-600 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 size={16} />
                       </button>
                       <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
@@ -245,21 +286,6 @@ export default function Taches() {
                     </div>
                   </div>
                   
-                  {/* <div className="bg-gray-50 rounded-xl p-3">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>Progression de la tâche</span>
-                      <span>{task.statut === 'termine' ? '100%' : task.statut === 'en_cours' ? '60%' : '0%'}</span>
-                    </div>
-                    <div className="mt-2 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          task.statut === 'termine' ? 'bg-green-500 w-full' : 
-                          task.statut === 'en_cours' ? 'bg-blue-500 w-3/5' : 
-                          'bg-gray-300 w-0'
-                        }`}
-                      ></div>
-                    </div>
-                  </div> */}
                 </div>
               ))}
             </div>

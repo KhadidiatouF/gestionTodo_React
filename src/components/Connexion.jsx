@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckSquare, Mail, Lock, Eye, EyeOff, UserPlus, LogIn } from 'lucide-react';
+import { CheckSquare, Mail, Lock, Eye, EyeOff, UserPlus, LogIn, SquareActivityIcon, SquareCheck, SquareKanban } from 'lucide-react';
 import { TodoApi } from '../api/api';
 
 export default function Connexion({setRoute}) {
@@ -33,7 +33,7 @@ export default function Connexion({setRoute}) {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="bg-blue-950 p-3 rounded-2xl">
-              <CheckSquare size={32} className="text-white" />
+              <SquareKanban size={32} className="text-white" />
             </div>
             <div className="text-left">
               <h1 className="text-3xl font-bold text-gray-900">Taches</h1>

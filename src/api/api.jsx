@@ -88,8 +88,6 @@ export const TodoApi ={
     });
     
     const data = await response.json()
-    console.log(data);
-    
     
     if (!data.error) {
      localStorage.setItem('accessToken', data.tokens.accessToken)
@@ -102,6 +100,19 @@ export const TodoApi ={
     console.error("Erreur API:", error);
     return { error: "Impossible de contacter le serveur" };
   }
- }
+ },
+  createUser: async (userData) => {
+    try {
+      const res = await fetch(`${BASE_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+      return res.ok;
+    } catch (err) {
+      console.error("Erreur inscription:", err);
+      return false;
+    }
+  }
 
 }
